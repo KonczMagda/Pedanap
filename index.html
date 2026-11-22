@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktív Tananyagok és Gyűjtemény</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --border-color: #e2e8f0;
+            --tag-bg: #eff6ff;
+            --tag-text: #1d4ed8;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Kereső és szűrők */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            font-size: 0.95rem;
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 0.45rem 1rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-muted);
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: #ffffff;
+        }
+
+        /* Kártyák rácselrendezése */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-icon {
+            font-size: 1.75rem;
+            line-height: 1;
+        }
+
+        .card-tag {
+            background-color: var(--tag-bg);
+            color: var(--tag-text);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.65rem;
+            border-radius: 9999px;
+            white-space: nowrap;
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            margin-bottom: 1.25rem;
+            flex-grow: 1;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .card-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .btn-open {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background-color: var(--primary);
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-open:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+            grid-column: 1 / -1;
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Interaktív Tananyagok</h1>
+        <p>Válassz az alábbi digitális feladatok és segédanyagok közül. Kattints a megnyitás gombra a kezdéshez!</p>
+    </header>
+
+    <div class="controls">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Keresés cím vagy kulcsszó alapján...">
+        </div>
+        <div class="filters" id="filterContainer">
+            <!-- A kategória gombok automatikusan generálódnak -->
+        </div>
+    </div>
+
+    <main class="grid" id="cardsGrid">
+        <div class="empty-state" id="emptyState">
+            Nincs a keresésnek vagy a szűrőnek megfelelő tananyag.
+        </div>
+    </main>
+
+    <footer>
+        <p>Készült interaktív tanórai és otthoni gyakorláshoz</p>
+    </footer>
+</div>
+
+<script>
+    // =========================================================================
+    // IDE ÍRD BE AZ ÚJ WEB-ANYAGOKAT!
+    // Csak másold le az egyik { ... } blokkot, és töltsd ki az adatokat.
+    // =========================================================================
+    const tananyagok = [
+        {
+            cim: "Bevezető interaktív feladat",
+            leiras: "Alapozó gyakorlatok és önismereti kérdések az első órához.",
+            kategoria: "Pszichológia",
+            ikon: "🧠",
+            datum: "2026. 10.",
+            fajl: "bevezeto.html"
+        },
+        {
+            cim: "Érzelmi intelligencia és önszabályozás",
+            leiras: "Interaktív szituációs játék és gondolattérkép az érzelmek felismeréséhez.",
+            kategoria: "Pszichológia",
+            ikon: "💡",
+            datum: "2026. 11.",
+            fajl: "erzelmek.html"
+        },
+        {
+            cim: "Pályaorientációs iránytű",
+            leiras: "Segédlet a továbbtanulási irányok és személyes erősségek feltérképezéséhez.",
+            kategoria: "Pályaorientáció",
+            ikon: "🧭",
+            datum: "2026. 11.",
+            fajl: "palyaorientacio.html"
+        }
+    ];
+    // =========================================================================
+
+    const cardsGrid = document.getElementById('cardsGrid');
+    const filterContainer = document.getElementById('filterContainer');
+    const searchInput = document.getElementById('searchInput');
+    const emptyState = document.getElementById('emptyState');
+
+    let aktivKategoria = 'Összes';
+
+    // Kategória gombok létrehozása
+    function renderFilters() {
+        const kategoriak = ['Összes', ...new Set(tananyagok.map(item => item.kategoria))];
+        filterContainer.innerHTML = '';
+
+        kategoriak.forEach(kat => {
+            const btn = document.createElement('button');
+            btn.className = 'filter-btn' + (kat === aktivKategoria ? ' active' : '');
+            btn.textContent = kat;
+            btn.addEventListener('click', () => {
+                aktivKategoria = kat;
+                renderFilters();
+                renderCards();
+            });
+            filterContainer.appendChild(btn);
+        });
+    }
+
+    // Kártyák megjelenítése
+    function renderCards() {
+        const kereses = searchInput.value.toLowerCase().trim();
+        
+        // Korábbi kártyák törlése (az emptyState megtartásával)
+        Array.from(cardsGrid.children).forEach(child => {
+            if (child.id !== 'emptyState') {
+                cardsGrid.removeChild(child);
+            }
+        });
+
+        const szurt = tananyagok.filter(item => {
+            const egyezikKategoria = aktivKategoria === 'Összes' || item.kategoria === aktivKategoria;
+            const egyezikKereses = item.cim.toLowerCase().includes(kereses) || 
+                                   item.leiras.toLowerCase().includes(kereses) ||
+                                   item.kategoria.toLowerCase().includes(kereses);
+            return egyezikKategoria && egyezikKereses;
+        });
+
+        if (szurt.length === 0) {
+            emptyState.style.display = 'block';
+        } else {
+            emptyState.style.display = 'none';
+            szurt.forEach(item => {
+                const card = document.createElement('article');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div>
+                        <div class="card-header">
+                            <span class="card-icon">${item.ikon || '📄'}</span>
+                            <span class="card-tag">${item.kategoria}</span>
+                        </div>
+                        <h2>${item.cim}</h2>
+                        <p>${item.leiras}</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-date">${item.datum || ''}</span>
+                        <a href="${item.fajl}" class="btn-open">Megnyitás →</a>
+                    </div>
+                `;
+                cardsGrid.appendChild(card);
+            });
+        }
+    }
+
+    searchInput.addEventListener('input', renderCards);
+
+    // Inicializálás
+    renderFilters();
+    renderCards();
+</script>
+
+</body>
+</html>
